@@ -14,7 +14,7 @@ def display_setting_widget(database, collection_name, filter_by_column, status_i
 
     l.download_button(label='DOWNLOAD', data=df.to_csv(index=False), file_name=f'{collection_name}.csv', use_container_width=True, key=f'{collection_name}_download_button')
     
-    if r.button(label='UPDATE', type='primary', use_container_width=True, key=f'{collection_name}_update_button'):
+    if r.button(label='UPDATE', type='primary', use_container_width=True, key=f'{collection_name}_update_button', disabled=True):
         database[collection_name].delete_many({})
         database[collection_name].insert_many(modified_df.to_dict(orient='records'))
         st.toast(f'**{collection_name.title()}** have been updated!', icon=status_icon)
@@ -23,7 +23,7 @@ def display_setting_widget(database, collection_name, filter_by_column, status_i
 
 
 
-st.set_page_config(page_title='Manage', page_icon='⚙️', layout="centered", initial_sidebar_state="auto", menu_items=None)
+st.set_page_config(page_title='Manage', page_icon='⚙️', layout="wide", initial_sidebar_state="auto", menu_items=None)
 
 if 'valid_session' not in st.session_state: st.session_state['valid_session'] = False
 
@@ -31,17 +31,17 @@ display = st.empty()
 if not st.session_state['valid_session']:
     with display.container():
         st.caption('ROYAL DESTINATIONS')
-        st.info('Please login to view this page.')
         st.header('Comp Listings Portal')
+        st.info('Please login to view this page.')
+        with st.form('login'):
+            username = st.text_input('Username')
+            password = st.text_input('Password', type='password')
 
-        username = st.text_input('Username')
-        password = st.text_input('Password')
-
-        if st.button('LOGIN', use_container_width=True, type='primary'):
-            if [username, password] in st.secrets['users']:
-                st.session_state['valid_session'] = True
-            else:
-                st.warning('Please enter a valid username and password.')
+            if st.form_submit_button('LOGIN', use_container_width=True, type='primary'):
+                if [username, password] in st.secrets['users']:
+                    st.session_state['valid_session'] = True
+                else:
+                    st.warning('Please enter a valid username and password.')
 
 if st.session_state['valid_session']:
     display.empty()
