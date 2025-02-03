@@ -55,12 +55,14 @@ if st.session_state['valid_session']:
 
     if st.button('Pull Report', use_container_width=True, type='primary'):
 
-        if report:
+        if report == 'Detail':
             df         = pd.DataFrame(list(database['test'].find({}, {"_id": 0})))
             df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
             df         = df[df.Date.isin(date_range)]
             df['Date'] = pd.to_datetime(df['Date']).dt.date
             st.dataframe(data=df, hide_index=True, use_container_width=True)
+        else:
+            '**Coming soon!**'
     
 
     st.caption('... more in development and coming soon!')
