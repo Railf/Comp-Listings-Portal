@@ -63,14 +63,14 @@ if st.session_state['valid_session']:
         match report:
             case 'Detail':
                 df         = pd.DataFrame(list(database['detail'].find({}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
                 df         = df[df.Date.isin(date_range)]
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 st.dataframe(data=df, hide_index=True, use_container_width=True)
 
             case '❗️ Comp Review':
                 df         = pd.DataFrame(list(database['detail'].find({}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
                 df         = df[df.Date.isin(date_range)]
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(np.average)
@@ -81,7 +81,7 @@ if st.session_state['valid_session']:
 
             case '🏘️ Comp Summary':
                 df         = pd.DataFrame(list(database['detail'].find({}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
                 df         = df[df.Date.isin(date_range)]
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df[df.Cost_to_Guest != 0]
@@ -95,7 +95,7 @@ if st.session_state['valid_session']:
 
             case '🏠 Unit Summary':
                 df         = pd.DataFrame(list(database['detail'].find({}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
                 df         = df[df.Date.isin(date_range)]
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df[df.Cost_to_Guest != 0]
