@@ -36,23 +36,36 @@ if st.session_state['valid_session']:
     l, m, r = st.columns(3)
 
     report = l.selectbox(label='Choose your report:', options=['Detail','❗️ Comp Review','🏘️ Comp Summary','🏠 Unit Summary', '💲 Comp Booking Summary'])
-    start_date = m.date_input('Start')
-    end_date   = r.date_input('End', min_value=start_date)
-    date_range = pd.date_range(start=start_date, end=end_date)
     
 
     match report:
         case 'Detail':
             st.info('This is the raw data that is populated with the comp listings script.')
+            start_date = m.date_input('Start')
+            end_date   = r.date_input('End', min_value=start_date)
+            date_range = pd.date_range(start=start_date, end=end_date)
 
         case '❗️ Comp Review':
             st.info('This is a list of comps that have returned zeros or undefined on specific comp weeks.')
+            start_date = m.date_input('Start')
+            end_date   = r.date_input('End', min_value=start_date)
+            date_range = pd.date_range(start=start_date, end=end_date)
         
         case '🏘️ Comp Summary':
             st.info('This is the per-comp, aggregate average of each non-zero-or-undefined value.')
+            start_date = m.date_input('Start')
+            end_date   = r.date_input('End', min_value=start_date)
+            date_range = pd.date_range(start=start_date, end=end_date)
     
         case '🏠 Unit Summary':
             st.info('This is the per-unit, aggregate average of each non-zero-or-undefined comps.')
+            start_date = m.date_input('Start')
+            end_date   = r.date_input('End', min_value=start_date)
+            date_range = pd.date_range(start=start_date, end=end_date)
+        
+        case '💲 Comp Booking Summary':
+            st.info('This is the comparison of a date to the date prior, highlightling proposed bookings and associated rates.')
+            start_date = m.date_input('Date', max_value=pd.to_datetime('today').date())
         
         case _:
             st.info('Coming soon!')
@@ -112,6 +125,23 @@ if st.session_state['valid_session']:
                     Count = ('Total_Rate','size')
                 )
                 st.dataframe(data=df, use_container_width=True)
+            
+            case '💲 Comp Booking Summary':
+                prior_date   = start_date - pd.Timedelta(days=1)
+
+                sdf          = pd.DataFrame(list(database['detail'].find({"Date": start_date.strftime('%Y-%m-%d')}, {"_id": 0})))
+                pdf          = pd.DataFrame(list(database['detail'].find({"Date": prior_date.strftime('%Y-%m-%d')}, {"_id": 0})))
+                sdf          = sdf[sdf.Cost_to_Guest == 0]
+                pdf          = pdf[pdf.Cost_to_Guest != 0]
+
+                df           = pd.merge(sdf, pdf, on=['Unit','Comp','Dates'], how='left', suffixes=('_s','_p'))
+                df           = df[df.Cost_to_Guest_p.notnull()]
+                df           = df[['Unit','Comp','Dates','Cost_to_Guest_p']]
+                df['Nights'] = df['Dates'].str.split(' - ').apply(lambda x: (pd.to_datetime(x[1]) - pd.to_datetime(x[0])).days)
+                df           = df.sort_values(by=['Unit','Comp','Dates']).reset_index(drop=True)
+                df           = df.rename(columns={'Cost_to_Guest_p': 'Cost_to_Guest'})
+                df           = df[['Unit','Comp','Dates','Nights','Cost_to_Guest']]
+                st.dataframe(data=df, use_container_width=True, hide_index=True)
 
             case _:
                 '**Coming soon!**'
