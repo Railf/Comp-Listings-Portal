@@ -171,8 +171,9 @@ if st.session_state['valid_session']:
             
 
             case '🕵️ Unit Comp Query':
-                df = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
-                st.dataframe(data=df, use_container_width=True, hide_index=True)
+                '**Coming soon!**'
+                # df = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
+                # st.dataframe(data=df, use_container_width=True, hide_index=True)
 
             case _:
                 '**Coming soon!**'
