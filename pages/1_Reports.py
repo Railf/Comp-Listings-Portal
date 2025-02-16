@@ -35,7 +35,16 @@ if st.session_state['valid_session']:
     
     l, m, r = st.columns(3)
 
-    report = l.selectbox(label='Choose your report:', options=['Detail','❗️ Comp Review','🏘️ Comp Summary','🏠 Unit Summary', '💲 Comp Booking Summary'])
+    reports = [
+        'Detail',
+        '❗️ Comp Review',
+        '🏘️ Comp Summary',
+        '🏠 Unit Summary',
+        '💲 Comp Booking Summary',
+        '🕵️ Unit Comp Query',
+        ]
+
+    report = l.selectbox(label='Choose your report:', options=reports)
     
 
     match report:
@@ -71,6 +80,20 @@ if st.session_state['valid_session']:
             st.info('This is the comparison of a date to the date prior, highlightling proposed bookings and associated rates.')
             start_date = m.date_input('Date', max_value=pd.to_datetime('today').date())
         
+        case '🕵️ Unit Comp Query':
+            st.info("This is the reflection of a unit\'s comps for a specific week.")
+            cdf  = pd.DataFrame(list(database['comps'].find({}, {"_id": 0})))
+            ddf  = pd.DataFrame(list(database['dates'].find({}, {"_id": 0})))
+            ddf['Start'] = pd.to_datetime(ddf['Start']).dt.date.astype(str)
+            ddf['End']   = pd.to_datetime(ddf['End']).dt.date.astype(str)
+            ddf['Week'] = ddf['Start'] + ' - ' + ddf['End']
+            cdf  = cdf.sort_values(by='unit_code').reset_index(drop=True)
+            cdf  = cdf['unit_code'].drop_duplicates().to_list()
+            ddf  = ddf.sort_values(by='Start').reset_index(drop=True)
+            ddf  = ddf['Week'].to_list()
+            unit = m.selectbox(label='Unit', options=cdf)
+            week = r.selectbox(label='Week', options=ddf)
+
         case _:
             st.info('Coming soon!')
 
@@ -144,6 +167,11 @@ if st.session_state['valid_session']:
                 df           = df.sort_values(by=['Unit','Comp','Dates']).reset_index(drop=True)
                 df           = df.rename(columns={'Cost_to_Guest_p': 'Cost_to_Guest'})
                 df           = df[['Unit','Comp','Dates','Nights','Cost_to_Guest']]
+                st.dataframe(data=df, use_container_width=True, hide_index=True)
+            
+
+            case '🕵️ Unit Comp Query':
+                df = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
                 st.dataframe(data=df, use_container_width=True, hide_index=True)
 
             case _:
