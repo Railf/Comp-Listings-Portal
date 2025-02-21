@@ -168,6 +168,7 @@ if st.session_state['valid_session']:
                 df           = df.sort_values(by=['Unit','Comp','Dates']).reset_index(drop=True)
                 df           = df.rename(columns={'Cost_to_Guest_p': 'Cost_to_Guest'})
                 df           = df[['Unit','Comp','Dates','Nights','Cost_to_Guest']]
+                df.Comp      = 'https://www.vrbo.com/' + df.Comp.astype(str)
                 st.dataframe(data=df, use_container_width=True, hide_index=True)
             
 
