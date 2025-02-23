@@ -116,6 +116,7 @@ if st.session_state['valid_session']:
                 df         = df[df.Cost_to_Guest == 0].reset_index()
                 df         = df[['Season','Unit','Comp']]
                 df         = df.drop_duplicates()
+                df         = df.groupby(['Unit','Comp'])['Season'].agg(list).reset_index()
                 st.dataframe(data=df, hide_index=True, use_container_width=True)
 
             case '🏘️ Comp Summary':
