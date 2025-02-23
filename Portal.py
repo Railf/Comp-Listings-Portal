@@ -30,7 +30,7 @@ if st.session_state['valid_session']:
     st.success('Welcome to the **Comp Listings Portal**!', icon='👋')
     st.info('Use the side navigation to **view reports** and **manage settings** pertaining to comp listings.')
 
-    with st.expander('Already done'):
+    with st.expander('See past updates'):
         for item in st.secrets['done']:
             item
 
