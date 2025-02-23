@@ -81,19 +81,18 @@ if st.session_state['valid_session']:
             start_date = m.date_input('Date', max_value=pd.to_datetime('today').date())
         
         case '🕵️ Unit Comp Query':
-            st.info('Coming soon!')
-            # st.info("This is the reflection of a unit\'s comps for a specific week.")
-            # cdf  = pd.DataFrame(list(database['comps'].find({}, {"_id": 0})))
-            # ddf  = pd.DataFrame(list(database['dates'].find({}, {"_id": 0})))
-            # ddf['Start'] = pd.to_datetime(ddf['Start']).dt.date.astype(str)
-            # ddf['End']   = pd.to_datetime(ddf['End']).dt.date.astype(str)
-            # ddf['Week'] = ddf['Start'] + ' - ' + ddf['End']
-            # cdf  = cdf.sort_values(by='unit_code').reset_index(drop=True)
-            # cdf  = cdf['unit_code'].drop_duplicates().to_list()
-            # ddf  = ddf.sort_values(by='Start').reset_index(drop=True)
-            # ddf  = ddf['Week'].to_list()
-            # unit = m.selectbox(label='Unit', options=cdf)
-            # week = r.selectbox(label='Week', options=ddf)
+            st.info("This is the status of a unit\'s comps for a specific week.")
+            cdf  = pd.DataFrame(list(database['comps'].find({}, {"_id": 0})))
+            ddf  = pd.DataFrame(list(database['dates'].find({}, {"_id": 0})))
+            ddf['Start'] = pd.to_datetime(ddf['Start']).dt.date.astype(str)
+            ddf['End']   = pd.to_datetime(ddf['End']).dt.date.astype(str)
+            ddf['Week'] = ddf['Start'] + ' - ' + ddf['End']
+            cdf  = cdf.sort_values(by='unit_code').reset_index(drop=True)
+            cdf  = cdf['unit_code'].drop_duplicates().to_list()
+            ddf  = ddf.sort_values(by='Start').reset_index(drop=True)
+            ddf  = ddf['Week'].to_list()
+            unit = m.selectbox(label='Unit', options=cdf)
+            week = r.selectbox(label='Week', options=ddf)
 
         case _:
             st.info('Coming soon!')
@@ -173,12 +172,31 @@ if st.session_state['valid_session']:
             
 
             case '🕵️ Unit Comp Query':
-                '**Coming soon!**'
-                # df = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
-                # st.dataframe(data=df, use_container_width=True, hide_index=True)
+                df               = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
+                df.Date          = pd.to_datetime(df.Date, format='mixed').dt.normalize().dt.date
+                df               = df.sort_values(by='Date').reset_index(drop=True)
+                most_recent_date = df.tail(1).Date.values[0]
+                ddf              = df[df.Date == most_recent_date]
+                comps            = ddf.Comp.unique().tolist()
+                results          = []
+
+                for comp in comps:
+                    cdf = df[df.Comp == comp]
+                    cdf = cdf[cdf.Cost_to_Guest != 0]
+                    la  = cdf.tail(1)
+                    
+                    if la.shape[0] == 0:
+                        results.append([most_recent_date.strftime('%m/%d/%Y'), comp, 'Unavailable', 'Always been unavailable', 'No cost data'])
+                    else:
+                        is_most_recent = la.Date.values[0] == most_recent_date
+                        
+                        if is_most_recent:
+                            results.append([most_recent_date.strftime('%m/%d/%Y'), comp, 'Available', la.Date.values[0].strftime('%m/%d/%Y'), la.Cost_to_Guest.values[0]])
+                        else:
+                            results.append([most_recent_date.strftime('%m/%d/%Y'), comp, 'Unavailable', la.Date.values[0].strftime('%m/%d/%Y'), la.Cost_to_Guest.values[0]])
+                
+                results = pd.DataFrame(results, columns=['As_of_Date','Comp','Availability_Status','Last_Available_Date','Cost_to_Guest'])
+                st.dataframe(data=results, use_container_width=True, hide_index=True)
 
             case _:
                 '**Coming soon!**'
-    
-
-    st.caption('... more in development and coming soon!')
