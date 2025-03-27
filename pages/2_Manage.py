@@ -14,7 +14,7 @@ def display_setting_widget(database, collection_name, filter_by_column, status_i
 
     l.download_button(label='DOWNLOAD', data=df.to_csv(index=False), file_name=f'{collection_name}.csv', use_container_width=True, key=f'{collection_name}_download_button')
     
-    if r.button(label='UPDATE', type='primary', use_container_width=True, key=f'{collection_name}_update_button', disabled=True):
+    if r.button(label='UPDATE', type='primary', use_container_width=True, key=f'{collection_name}_update_button'):
         database[collection_name].delete_many({})
         database[collection_name].insert_many(modified_df.to_dict(orient='records'))
         st.toast(f'**{collection_name.title()}** have been updated!', icon=status_icon)
