@@ -103,14 +103,14 @@ if st.session_state['valid_session']:
         match report:
             case 'Detail':
                 df         = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 st.dataframe(data=df, hide_index=True, use_container_width=True)
 
 
             case '❗️ Comp Review':
                 df         = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(np.average)
                 df         = df[df.Cost_to_Guest == 0].reset_index()
@@ -121,7 +121,7 @@ if st.session_state['valid_session']:
 
             case '🏘️ Comp Summary':
                 df         = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df[df.Cost_to_Guest != 0]
                 df         = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(
@@ -135,7 +135,7 @@ if st.session_state['valid_session']:
 
             case '🏠 Unit Summary':
                 df         = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date'], format='mixed').dt.normalize()
+                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
                 df['Date'] = pd.to_datetime(df['Date']).dt.date
                 df         = df[df.Cost_to_Guest != 0]
                 df         = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(
@@ -174,7 +174,7 @@ if st.session_state['valid_session']:
 
             case '🕵️ Unit Comp Query':
                 df               = pd.DataFrame(list(database['detail'].find({"Unit": unit, "Dates": week}, {"_id": 0})))
-                df.Date          = pd.to_datetime(df.Date, format='mixed').dt.normalize().dt.date
+                df.Date          = pd.to_datetime(df.Date).dt.normalize().dt.date
                 df               = df.sort_values(by='Date').reset_index(drop=True)
                 most_recent_date = df.tail(1).Date.values[0]
                 ddf              = df[df.Date == most_recent_date]
