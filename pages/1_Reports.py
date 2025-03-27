@@ -109,14 +109,16 @@ if st.session_state['valid_session']:
 
 
             case '❗️ Comp Review':
-                df         = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
-                df['Date'] = pd.to_datetime(df['Date']).dt.normalize()
-                df['Date'] = pd.to_datetime(df['Date']).dt.date
-                df         = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(np.average)
-                df         = df[df.Cost_to_Guest == 0].reset_index()
-                df         = df[['Season','Unit','Comp']]
-                df         = df.drop_duplicates()
-                df         = df.groupby(['Unit','Comp'])['Season'].agg(list).reset_index()
+                df           = pd.DataFrame(list(database['detail'].find({"Date": {"$in": date_range}}, {"_id": 0})))
+                df['Date']   = pd.to_datetime(df['Date']).dt.normalize()
+                df['Date']   = pd.to_datetime(df['Date']).dt.date
+                df           = df.groupby(['Date','Season','Unit','Comp'])[['Total_Rate','Service_Fee','Cost_to_Guest']].agg(np.average)
+                df           = df[df.Cost_to_Guest == 0].reset_index()
+                df           = df[['Season','Unit','Comp']]
+                df           = df.drop_duplicates()
+                df           = df.groupby(['Unit','Comp'])['Season'].agg(list).reset_index()
+                df['Misses'] = df['Season'].str.len()
+                df           = df.sort_values(by='Misses', ascending=False)
                 st.dataframe(data=df, hide_index=True, use_container_width=True)
 
             case '🏘️ Comp Summary':
